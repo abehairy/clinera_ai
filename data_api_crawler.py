@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import os
 
 # Constants
-MODEL = 'gpt-4'
+MODEL = 'gpt-3.5-turbo'
 
 # Load environment variables
 load_dotenv()
@@ -58,11 +58,28 @@ def run_agent_query(yaml_path, user_query):
     agent = create_agent_from_yaml(yaml_path)
     return agent.run(user_query)
 
+def search_clinical_trials(user_query):
+    """Useful when you need to search and get info about clinical trials. Takes the query as input ex. 'get the latest clinical trial studay details on ..' """
+    yaml_path = "./ct-simple-v2.yaml"
+    result = run_agent_query(yaml_path, user_query)
+    return result
+
+def search_interactions(user_query):
+    yaml_path = "./rxnav-interactions.yaml"
+    result = run_agent_query(yaml_path, user_query)
+    return result
+
+
+def search_conditions(user_query):
+    yaml_path = "./nih-conditions-api.yaml"
+    result = run_agent_query(yaml_path, user_query)
+    return result
+
 
 # Example usage
 if __name__ == "__main__":
-    # yaml_path = "./ct-simple-v2.yaml"
-    # user_query = "get the latest clinical trial study details on trastuzumab?"
+    yaml_path = "./ct-simple-v2.yaml"
+    user_query = "get the latest clinical trial study details on trastuzumab?"
     # yaml_path = "./rxnav-interactions.yaml"
     # user_query = "what are the drug to drug interactions between simvastatin and Sulfamethoxazole?"
     # yaml_path = "./nih-conditions-api.yaml"
