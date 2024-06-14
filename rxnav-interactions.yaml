@@ -1,0 +1,170 @@
+openapi: 3.0.0
+info:
+  title: RxNorm Drug Interaction API
+  version: 1.0.0
+  description: OpenAPI specification for the Drug Interaction API of RxNorm.
+servers:
+  - url: 'https://rxnav.nlm.nih.gov/REST'
+paths:
+  /interaction/list.{format}:
+    get:
+      tags:
+        - Drug Interactions
+      summary: Retrieve drug interactions between a list of drugs.
+      description: This endpoint fetches drug interactions for the provided list of drugs. 
+      parameters:
+        - name: format
+          in: path
+          required: true
+          description: Notation for results. Either .xml or .json.
+          schema:
+            type: string
+            enum: [xml, json]
+        - name: rxcuis
+          in: query
+          required: true
+          description: RxNorm identifier (Space-separated list. At most 50 items.)
+          schema:
+            type: string
+        - name: sources
+          in: query
+          required: false
+          description: Sources to use (if none specified, all sources will be used)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful interaction data response.
+          content:
+            application/xml:
+              schema:
+                type: string  # This is a placeholder. Ideally, you'd have a detailed structure.
+            application/json:
+              schema:
+                type: object
+                properties:
+                  interactiondata:
+                    type: object
+                    properties:
+                      nlmDisclaimer:
+                        type: string
+                      fullInteractionTypeGroup:
+                        type: array
+                        items:
+                          # ... other nested structures go here
+        '400':
+          description: Bad request.
+        '500':
+          description: Internal server error.
+ 
+  /interaction/interaction.{format}:
+    get:
+      tags:
+        - Drug Interactions
+      summary: Get the drug interactions for a specified drug.
+      description: >-
+        Retrieves the drug interactions for a single specified drug based on its RxNorm identifier. 
+        This endpoint is distinct from the one that accepts a list of drugs.
+      parameters:
+        - name: format
+          in: path
+          required: true
+          description: Notation for results (json or xml).
+          schema:
+            type: string
+            enum: [json, xml]
+        - name: rxcui
+          in: query
+          required: true
+          description: RxNorm identifier of the drug to find interactions for.
+          schema:
+            type: string
+        - name: sources
+          in: query
+          description: Sources to use for interaction data. If none specified, all sources will be used.
+          schema:
+            type: string
+            default: ALL
+      responses:
+        '200':
+          description: Successful drug interaction lookup response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  interactiondata:
+                    type: object
+                    properties:
+                      ... # [Retain the existing schema for drug interactions]
+        '400':
+          description: Bad request.
+        '404':
+          description: Drug or interaction not found.
+        '500':
+          description: Internal server error.
+
+  /rxcui.{format}:
+    get:
+      tags:
+        - Drug Lookup
+      summary: Search for a drug name in RxNorm and retrieve associated RxCUIs.
+      description: Searches for a name from any vocabulary in RxNorm and returns the RxCUIs associated with the name.
+      parameters:
+        - name: format
+          in: path
+          required: true
+          description: Notation for results (json or xml).
+          schema:
+            type: string
+            enum: [json, xml]
+        - name: name
+          in: query
+          required: true
+          description: Name of the drug to find.
+          schema:
+            type: string
+        - name: allsrc
+          in: query
+          description: Scope of the search. 0 for Active concepts, 1 for Current concepts.
+          schema:
+            type: integer
+            default: 0
+            enum: [0, 1]
+        - name: srclist
+          in: query
+          description: Source vocabularies to search (if allsrc=1). Space-separated list.
+          schema:
+            type: string
+            default: ALL
+        - name: search
+          in: query
+          description: Precision of search. 0 for Exact match, 1 for Normalized match, 2 for Best match.
+          schema:
+            type: integer
+            default: 0
+            enum: [0, 1, 2]
+      responses:
+        '200':
+          description: Successful drug lookup response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rxnormdata:
+                    type: object
+                    properties:
+                      idGroup:
+                        type: object
+                        properties:
+                          rxnormId:
+                            type: array
+                            items:
+                              type: string
+        '400':
+          description: Bad request.
+        '404':
+          description: Drug not found.
+        '500':
+          description: Internal server error.
