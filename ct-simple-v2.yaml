@@ -1,0 +1,168 @@
+openapi: "3.0.3"
+info:
+  title: "ClinicalTrials.gov REST API"
+  description: "Access metadata, statistics, and latest clinical trials data from ClinicalTrials.gov."
+  version: "2.0.1"
+servers:
+  - url: "https://clinicaltrials.gov/api/v2"
+paths:
+  /studies:
+    get:
+      summary: "Search Clinical Trial Studies"
+      description: >
+        Searches for clinical trial studies based on specified query and filter parameters, returning data in a paginated response.
+        Use `nextPageToken` from the response to paginate through results. Include query parameters like `query.cond` for conditions,
+        `query.term` for other search terms, and `filter.overallStatus` to filter by study status. Response format can be JSON or CSV.
+      parameters:
+        - name: "format"
+          in: "query"
+          description: "Response format: `json` (default) or `csv`."
+          required: false
+          schema:
+            type: "string"
+            enum: ["csv", "json"]
+        - name: "sort"
+          in: "query"
+          description: >
+            Sort the search results by one or more fields. Use the format `field:direction` to specify the field and direction (asc or desc).
+            For example, `EnrollmentCount:desc` sorts by descending enrollment count. Special value `@relevance` sorts by relevance to search terms.
+          schema:
+            type: "array"
+            items:
+              type: "string"
+        - name: "query.cond"
+          in: "query"
+          description: "Conditions or disease query, using Essie expression syntax."
+          required: false
+          schema:
+            type: "string"
+        - name: "query.term"
+          in: "query"
+          description: "Other terms query, using Essie expression syntax."
+          required: false
+          schema:
+            type: "string"
+        - name: "filter.overallStatus"
+          in: "query"
+          description: "Filter by study status, such as 'RECRUITING'."
+          required: false
+          schema:
+            type: "array"
+            items:
+              type: "string"
+      responses:
+        "200":
+          description: "A paginated list of studies matching the query."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedStudies"
+        "400":
+          description: "Bad request, possibly due to invalid input parameters."
+  /studies/{nctId}:
+    get:
+      summary: "Single Clinical Tiral Study Details"
+      description: >
+        Returns detailed data for a single clinical trial study identified by its NCT number. Include the NCT number in the path to fetch specific study details.
+      parameters:
+        - name: "nctId"
+          in: "path"
+          description: "NCT Number of the study to retrieve details for."
+          required: true
+          schema:
+            type: "string"
+            pattern: "^NCT\\d{8}$"
+        - name: "format"
+          in: "query"
+          description: "Response format: `json` (default), `csv`, `json.zip`, or `fhir.json`."
+          required: false
+          schema:
+            type: "string"
+            enum: ["csv", "json", "json.zip", "fhir.json"]
+      responses:
+        "200":
+          description: "Detailed information about the specified study."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Study"
+        "400":
+          description: "Bad request, possibly due to missing or incorrect NCT number."
+        "404":
+          description: "Not found, if the specified NCT number does not match any study."
+components:
+  schemas:
+    PagedStudies:
+      type: "object"
+      properties:
+        nextPageToken:
+          type: "string"
+          description: "Token for the next page of results, absent in the last page."
+        studies:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Study"
+          description: "Array of study objects."
+    Study:
+      type: "object"
+      description: "Detailed information about a study, including IDs, titles, and status."
+      properties:
+        nctId:
+          type: "string"
+          description: "Unique identifier for the clinical trial."
+        title:
+          type: "string"
+          description: "Title of the clinical trial study."
+        status:
+          type: "string"
+          description: "Current status of the clinical trial."
+        studyType:
+          type: "string"
+          description: "Type of the study (e.g., Observational, Interventional)."
+        startdate:
+          type: "string"
+          format: "date"
+          description: "Start date of the clinical trial."
+        completionDate:
+          type: "string"
+          format: "date"
+          description: "Estimated completion date of the clinical trial."
+        enrollment:
+          type: "integer"
+          description: "Number of participants enrolled in the clinical trial."
+        condition:
+          type: "string"
+          description: "Primary condition being studied in the clinical trial."
+        interventions:
+          type: "array"
+          items:
+            type: "string"
+          description: "List of interventions involved in the clinical trial."
+        sponsor:
+          type: "string"
+          description: "Primary sponsor of the clinical trial."
+        detailedDescription:
+          type: "string"
+          description: "Detailed description of the clinical trial."
+        results:
+          type: "object"
+          properties:
+            hasResults:
+              type: "boolean"
+              description: "Indicates if the study has results posted."
+            primaryOutcomeMeasures:
+              type: "array"
+              items:
+                type: "string"
+              description: "Primary outcome measures for the study."
+            secondaryOutcomeMeasures:
+              type: "array"
+              items:
+                type: "string"
+              description: "Secondary outcome measures for the study."
+          description: "Results information for the study."
+      required:
+        - "nctId"
+        - "title"
+        - "status"
+      description: "Detailed information about a study, including ID, title, status, study type, dates, enrollment, condition, interventions, sponsor, and results."

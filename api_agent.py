@@ -49,7 +49,7 @@ def create_agent_from_yaml(yaml_path):
     api_spec = load_api_spec(yaml_path)
     headers = construct_headers(api_spec)
     requests_wrapper = RequestsWrapper(headers=headers)
-    agent = planner.create_openapi_agent(api_spec, requests_wrapper, llm)
+    agent = planner.create_openapi_agent(api_spec, requests_wrapper, llm, allow_dangerous_requests=True)
     return agent
 
 
@@ -61,11 +61,11 @@ def run_agent_query(yaml_path, user_query):
 
 # Example usage
 if __name__ == "__main__":
-    # yaml_path = "./solutions/ct-simple-v2.yaml"
-    # user_query = "get the latest clinical trial study details on trastuzumab?"
+    yaml_path = "./ct-simple-v2.yaml"
+    user_query = "get the latest clinical trial study details on trastuzumab?"
     # yaml_path = "./solutions/rxnav-interactions.yaml"
     # user_query = "what are the drug to drug interactions between simvastatin and Sulfamethoxazole?"
-    yaml_path = "./solutions/nih-conditions-api.yaml"
-    user_query = "what is the condition for flu"
+    # yaml_path = "./nih-conditions-api.yaml"
+    # user_query = "what is the condition for flu"
     result = run_agent_query(yaml_path, user_query)
     print(result)

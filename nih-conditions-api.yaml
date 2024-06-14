@@ -1,0 +1,235 @@
+openapi: 3.0.0
+info:
+  title: Medical Conditions API
+  description: API for accessing a comprehensive list of medical conditions along with associated codes and terms.
+  version: 1.0.0
+
+servers:
+  - url: https://clinicaltables.nlm.nih.gov
+
+paths:
+  /api/conditions/v3/search:
+    get:
+      operationId: searchMedicalConditions
+      summary: Search Medical Conditions
+      description: Search through over 2,400 medical conditions using various parameters.
+      parameters:
+        - in: query
+          name: terms
+          required: true
+          schema:
+            type: string
+          description: The search string for which to find matches in the list.
+        - in: query
+          name: maxList
+          required: false
+          schema:
+            type: integer
+            default: 7
+          description: Number of results requested, up to a limit of 500.
+        - in: query
+          name: q
+          required: false
+          schema:
+            type: string
+          description: Additional query string to further constrain the results.
+        - in: query
+          name: df
+          required: false
+          schema:
+            type: string
+            default: 'consumer_name'
+          description: Comma-separated list of display fields intended for the user.
+        - in: query
+          name: sf
+          required: false
+          schema:
+            type: string
+            default: 'consumer_name, primary_name, word_synonyms, synonyms, term_icd9_code, term_icd9_text'
+          description: Comma-separated list of fields to be searched.
+        - in: query
+          name: cf
+          required: false
+          schema:
+            type: string
+            default: 'key_id'
+          description: Field to regard as the "code" for the returned item data.
+        - in: query
+          name: ef
+          required: false
+          schema:
+            type: string
+          description: Additional fields to be returned for each retrieved item.
+
+      responses:
+        '200':
+          description: Successful response with medical conditions data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total number of results on the server.
+                  codes:
+                    type: array
+                    items:
+                      type: string
+                    description: Array of codes for the returned items.
+                  extraData:
+                    type: object
+                    additionalProperties: 
+                      type: array
+                      items:
+                        type: string
+                    description: Hash of the extra data requested.
+                  displayStrings:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: string
+                    description: Array of display strings for each code.
+                  codeSystem:
+                    type: array
+                    items:
+                      type: string
+                    description: The code system for each returned code.
+  /api/drug_ingredients/v3/search:
+    get:
+      operationId: searchDrugIngredients
+      summary: Search Drug Ingredients
+      description: Search through the RxTerms drug ingredient list.
+      parameters:
+        - in: query
+          name: terms
+          required: true
+          schema:
+            type: string
+          description: The search string for which to find matches in the list.
+        - in: query
+          name: maxList
+          required: false
+          schema:
+            type: integer
+            default: 7
+          description: Number of results requested, up to a limit of 500.
+        - in: query
+          name: q
+          required: false
+          schema:
+            type: string
+          description: Additional query string to further constrain the results.
+        - in: query
+          name: df
+          required: false
+          schema:
+            type: string
+            default: 'name'
+          description: Comma-separated list of display fields intended for the user.
+        - in: query
+          name: sf
+          required: false
+          schema:
+            type: string
+            default: 'name'
+          description: Comma-separated list of fields to be searched.
+        - in: query
+          name: cf
+          required: false
+          schema:
+            type: string
+            default: 'code'
+          description: Field to regard as the "code" for the returned item data.
+        - in: query
+          name: ef
+          required: false
+          schema:
+            type: string
+          description: Additional fields to be returned for each retrieved item.
+
+      responses:
+        '200':
+          description: Successful response with drug ingredients data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total number of results on the server.
+                  codes:
+                    type: array
+                    items:
+                      type: string
+                    description: Array of codes for the returned items.
+                  extraData:
+                    type: object
+                    additionalProperties: 
+                      type: array
+                      items:
+                        type: string
+                    description: Hash of the extra data requested.
+                  displayStrings:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: string
+                    description: Array of display strings for each code.
+
+components:
+  schemas:
+    MedicalCondition:
+      type: object
+      properties:
+        primary_name:
+          type: string
+          description: The name of the medical condition.
+        consumer_name:
+          type: string
+          description: A more consumer-friendly version of the disease name.
+        key_id:
+          type: string
+          description: A unique identifier for the medical condition.
+        icd10cm_codes:
+          type: string
+          description: Comma-separated list of suggested ICD-10-CM codes.
+        term_icd9_code:
+          type: string
+          description: The ICD-9-CM code for the term.
+        term_icd9_text:
+          type: string
+          description: The ICD-9-CM display text for the term.
+        word_synonyms:
+          type: array
+          items:
+            type: string
+          description: Synonyms for each of the words in the term.
+        synonyms:
+          type: array
+          items:
+            type: string
+          description: Synonyms for the whole term.
+        info_link_data:
+          type: array
+          items:
+            type: object
+            properties:
+              link:
+                type: string
+              title:
+                type: string
+          description: Links to information about the condition.
+
+DrugIngredient:
+      type: object
+      properties:
+        code:
+          type: string
+          description: The RxNorm unique identifier for the ingredient.
+        name:
+          type: string
+          description: Name of the drug ingredient.
