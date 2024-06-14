@@ -43,3 +43,5 @@ pyTelegramBotAPI
 langchain_google_genai
 wikipedia
 xmltodict
+unstructured-client
+neo4j
