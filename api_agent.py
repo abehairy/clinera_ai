@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import os
 
 # Constants
-MODEL = 'gpt-3.5-turbo'
+MODEL = 'gpt-4'
 
 # Load environment variables
 load_dotenv()
@@ -61,9 +61,9 @@ def run_agent_query(yaml_path, user_query):
 
 # Example usage
 if __name__ == "__main__":
-    yaml_path = "./ct-simple-v2.yaml"
-    user_query = "get the latest clinical trial study details on trastuzumab?"
-    # yaml_path = "./solutions/rxnav-interactions.yaml"
+    # yaml_path = "./ct-simple-v2.yaml"
+    # user_query = "get the latest clinical trial study details on trastuzumab?"
+    # yaml_path = "./rxnav-interactions.yaml"
     # user_query = "what are the drug to drug interactions between simvastatin and Sulfamethoxazole?"
     # yaml_path = "./nih-conditions-api.yaml"
     # user_query = "what is the condition for flu"
