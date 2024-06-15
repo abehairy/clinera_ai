@@ -42,22 +42,118 @@ def save_to_mongodb(data, db_name, collection_name):
 
     return result
 
+
+def get_embedding(query):
+    url = 'https://api.openai.com/v1/embeddings'
+    openai_key = 'sk-proj-w52tT0ejyKYYqDRM4r3rT3BlbkFJzeJQ36r0FqQqABEfxNwC'  # Replace with your actual API key
+    
+    response = requests.post(url, json={
+        'input': query,
+        'model': "text-embedding-3-small"
+    }, headers={
+        'Authorization': f'Bearer {openai_key}',
+        'Content-Type': 'application/json'
+    })
+    
+    if response.status_code == 200:
+        return response.json()['data'][0]['embedding']
+    else:
+        raise Exception(f'Failed to get embedding. Status code: {response.status_code}')
+
+def find_similar_documents(embedding):
+    
+    client = MongoClient('mongodb+srv://clinera:BxHgNChSxPKWvnHL@clinera.rlsmowf.mongodb.net/?retryWrites=true&w=majority&appName=clinera')
+    
+    try:
+        db = client['clinera']
+        collection = db['medical_content']
+        
+        documents = collection.aggregate([
+            {"$vectorSearch": {
+                "queryVector": embedding,
+                "path": "text_embedding",
+                "numCandidates": 100,
+                "limit": 1,
+                "index": "ContentSearch",
+            }}
+        ])
+        
+        return documents
+    finally:
+        client.close()
+
+def get_answer(query, documents):
+    document_texts = '\n\n'.join([doc['text'] for doc in documents])
+    
+    prompt = f'Using the following documents, answer the query:\nQuery: {query}\nDocuments:\n{document_texts}\nAnswer:'
+    
+    url = "https://api.openai.com/v1/chat/completions"
+    api_key = "sk-proj-w52tT0ejyKYYqDRM4r3rT3BlbkFJzeJQ36r0FqQqABEfxNwC"  # Replace with your actual API key
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f'Bearer {api_key}'
+    }
+    
+    data = {
+        "model": "gpt-4o",
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        "max_tokens": 1500  # Adjust max tokens as needed
+    }
+    
+    response = requests.post(url, json=data, headers=headers)
+    
+    if response.status_code == 200:
+        return response.json()['choices'][0]['message']['content']
+    else:
+        raise Exception(f'Error in generating answer. Status code: {response.status_code}')
+
+def ask_query(query):
+    #query = 'Who is Larry?'
+
+    try:
+        embedding = get_embedding(query)
+        print(embedding)
+        documents = find_similar_documents(embedding)
+        print(documents)
+        answer = get_answer(query, documents)
+        print(answer)
+        return answer
+    except Exception as err:
+        print(str(err))
+
 # Step 4: Main function to tie everything together
 def main(url, db_name, collection_name):
-    html_content = scrape_jina_ai(url)
-    if not html_content:
-        print("Failed to scrape the website.")
-        return
+    query = 'Who is Larry?'
     
-    json_data = process_with_unstructured(html_content)
-    json_data = add_empty_text_embedding(json_data)
-    print(json_data)
-    inserted_id = save_to_mongodb(json_data, db_name, collection_name)
+    try:
+        embedding = get_embedding(query)
+        print(embedding)
+        documents = find_similar_documents(embedding)
+        print(documents)
+        answer = get_answer(query, documents)
+        print(answer)
+    except Exception as err:
+        print(str(err))
+
+
+    # html_content = scrape_jina_ai(url)
+    # if not html_content:
+    #     print("Failed to scrape the website.")
+    #     return
     
-    print(f"Data successfully inserted with ID: {inserted_id}")
+    # json_data = process_with_unstructured(html_content)
+    # json_data = add_empty_text_embedding(json_data)
+    # print(json_data)
+    # inserted_id = save_to_mongodb(json_data, db_name, collection_name)
+    
+    # print(f"Data successfully inserted with ID: {inserted_id}")
 
 if __name__ == "__main__":
-    medical_news_url = 'https://www.medscape.com/viewarticle/dea-training-mandate-8-hours-my-life-id-back-2024a1000avg'  # Replace with actual article URL
+    medical_news_url = ''  # Replace with actual article URL
     database_name = 'clinera'
     collection_name = 'medical_content'
     

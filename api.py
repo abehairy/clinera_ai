@@ -11,6 +11,7 @@ from fastapi.responses import FileResponse
 import uuid
 import os
 from data_api_crawler import search_clinical_trials
+from final_agent import ask_query
 
 app = FastAPI(
     docs_url="/api/docs",
@@ -34,6 +35,7 @@ app.add_middleware(
 
 @app.get("/api/ask")
 async def ask(query):
-  result = search_clinical_trials(query)
+  #result = search_clinical_trials(query)
+  result = ask_query(query)
 
   return result

@@ -12,5 +12,13 @@
     "axios": "^1.7.2",
     "dotenv": "^16.4.5",
     "mongodb": "^6.7.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abehairy/clinera_ai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/abehairy/clinera_ai/issues"
+  },
+  "homepage": "https://github.com/abehairy/clinera_ai#readme"
 }
