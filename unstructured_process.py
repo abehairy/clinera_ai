@@ -9,7 +9,7 @@ client = UnstructuredClient(
 )
 
 # Update here with your filename
-filename = "sample-docs/YOUR_FILE_NAME.pdf"
+filename = "data/New Era? 'Double Selective' Antibiotic Spares the Microbiome.html"
 
 with open(filename, "rb") as f:
     files=shared.Files(
