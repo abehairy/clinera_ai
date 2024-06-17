@@ -47,7 +47,7 @@ import requests
 def get_embedding(query):
     print(query)
     url = 'https://api.openai.com/v1/embeddings'
-    openai_key = 'sk-proj-EyclBi0x231VI40PIGvwT3BlbkFJE6wWdYLBeaqDVW6Ccc8f'  # Replace with your actual API key
+    openai_key = ''  # Replace with your actual API key
     
     response = requests.post(url, json={
         'input': query,
@@ -91,7 +91,7 @@ def get_answer(query, documents):
     prompt = f'Using the following documents, answer the query:\nQuery: {query}\nDocuments:\n{document_texts}\nAnswer:'
     
     url = "https://api.openai.com/v1/chat/completions"
-    api_key = "sk-proj-EyclBi0x231VI40PIGvwT3BlbkFJE6wWdYLBeaqDVW6Ccc8f"  # Replace with your actual API key
+    api_key = ""  # Replace with your actual API key
 
     headers = {
         "Content-Type": "application/json",
