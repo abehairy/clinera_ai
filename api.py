@@ -1,11 +1,7 @@
-
-
 import re
 import asyncio
-from fastapi import FastAPI, HTTPException, Query
 from fastapi import FastAPI, HTTPException, Request, Depends, status
 from datetime import datetime  # Import the datetime class from the datetime module
-from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import uuid
@@ -31,11 +27,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.post("/api/ask")
+async def ask(request: Request):
+    body = await request.json()
+    query = body.get('query')
+    print(query)
+    if not query:
+        raise HTTPException(status_code=400, detail="Query parameter is required")
 
-
-@app.get("/api/ask")
-async def ask(query):
-  #result = search_clinical_trials(query)
-  result = ask_query(query)
-
-  return result
+    result = ask_query(query)
+    return result

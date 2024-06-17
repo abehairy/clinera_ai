@@ -1,5 +1,4 @@
 import requests
-from bs4 import BeautifulSoup
 from unstructured.partition.html import partition_html
 from pymongo import MongoClient
 
@@ -43,13 +42,16 @@ def save_to_mongodb(data, db_name, collection_name):
     return result
 
 
+import requests
+
 def get_embedding(query):
+    print(query)
     url = 'https://api.openai.com/v1/embeddings'
-    openai_key = 'sk-proj-w52tT0ejyKYYqDRM4r3rT3BlbkFJzeJQ36r0FqQqABEfxNwC'  # Replace with your actual API key
+    openai_key = 'sk-proj-EyclBi0x231VI40PIGvwT3BlbkFJE6wWdYLBeaqDVW6Ccc8f'  # Replace with your actual API key
     
     response = requests.post(url, json={
         'input': query,
-        'model': "text-embedding-3-small"
+        'model': "text-embedding-ada-002"
     }, headers={
         'Authorization': f'Bearer {openai_key}',
         'Content-Type': 'application/json'
@@ -58,7 +60,8 @@ def get_embedding(query):
     if response.status_code == 200:
         return response.json()['data'][0]['embedding']
     else:
-        raise Exception(f'Failed to get embedding. Status code: {response.status_code}')
+        raise Exception(f'Failed to get embedding. Status code: {response.status_code}, Response: {response.text}')
+
 
 def find_similar_documents(embedding):
     
@@ -88,7 +91,7 @@ def get_answer(query, documents):
     prompt = f'Using the following documents, answer the query:\nQuery: {query}\nDocuments:\n{document_texts}\nAnswer:'
     
     url = "https://api.openai.com/v1/chat/completions"
-    api_key = "sk-proj-w52tT0ejyKYYqDRM4r3rT3BlbkFJzeJQ36r0FqQqABEfxNwC"  # Replace with your actual API key
+    api_key = "sk-proj-EyclBi0x231VI40PIGvwT3BlbkFJE6wWdYLBeaqDVW6Ccc8f"  # Replace with your actual API key
 
     headers = {
         "Content-Type": "application/json",
@@ -112,7 +115,6 @@ def get_answer(query, documents):
         raise Exception(f'Error in generating answer. Status code: {response.status_code}')
 
 def ask_query(query):
-    #query = 'Who is Larry?'
 
     try:
         embedding = get_embedding(query)
@@ -152,9 +154,9 @@ def main(url, db_name, collection_name):
     
     # print(f"Data successfully inserted with ID: {inserted_id}")
 
-if __name__ == "__main__":
-    medical_news_url = ''  # Replace with actual article URL
-    database_name = 'clinera'
-    collection_name = 'medical_content'
+# if __name__ == "__main__":
+#     medical_news_url = ''  # Replace with actual article URL
+#     database_name = 'clinera'
+#     collection_name = 'medical_content'
     
-    main(medical_news_url, database_name, collection_name)
+#     main(medical_news_url, database_name, collection_name)

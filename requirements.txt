@@ -23,7 +23,7 @@ pydub
 unstructured
 pdf2image
 pdfminer.six
-pillow-heif
+pillow-heif 
 opencv-python
 pytesseract
 Authlib
